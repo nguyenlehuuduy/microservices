@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: nguyenlehuuduy/microservice
+          image: nguyenlehuuduy/microservices
           ports:
             - name: http
               containerPort: 3000
@@ -30,10 +30,25 @@ spec:
               path: /
               port: http
           env:
+            - name: NODE_ENV
+              value: testing
+            - name: SERVICEDIR
+              value: dist/services
             - name: SERVICES
               value: api
             - name: PORT
               value: "3000"
-          envFrom:
-            - configMapRef:
-                name: microservice-cm
+            - name: CACHER
+              value: redis://redis:6379
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: postgres
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: TRANSPORTER
+              value: nats://nats:4222

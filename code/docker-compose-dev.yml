@@ -5,9 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    image: nguyenlehuuduy/microservice
+    image: microservice
     env_file: docker-compose.env
-    command: "services/api.service.ts"
+    command: " services/**/*.service.ts"
     depends_on:
       - nats
       - redis
@@ -43,8 +43,7 @@ services:
 volumes:
   pgdata:
 
-
 networks:
-  web-crm:
+  web-crm: 
     external:
       name: web-crm

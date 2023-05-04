@@ -11,78 +11,82 @@ import { Action } from "moleculer-decorators";
 import Hooks from "Hooks";
 import { findAndCountAll } from "Utils/model";
 
-class NewsService implements ServiceSchema {
+export default class NewsService implements ServiceSchema {
 	public name = "news";
 	public hooks = Hooks();
 
+
 	@Action({
 		rest: "GET /",
+	  })
+	  public async list(ctx: Context<any, any>): Promise<any> {
+		try {
+		  const News = Models.NewsModel(ctx);
+		  const news = await News.findAll();
+		  return news;
+		} catch (error) {
+		  throw apiResponseError(error);
+		}
+	  }
+	@Action({
+		rest: "POST /",
+		params: {
+			image_sm: "string",
+			image_lg: "string",
+			title: "string",
+			slug: "string",
+			description: "string",
+			body: "string",
+			status:"string",
+		},
 	})
-	public async list(ctx: Context<any, any>): Promise<any> {
-		const { pageIndex, pageSize, filters, sorter } = ctx.params;
-		const { id: user_id } = ctx.meta.user;
+	public async create(ctx: Context<any, any>): Promise<any> {
+		const { image_sm,image_lg, title, slug, description, body,status } = ctx.params;
 
 		try {
 			const News = Models.NewsModel(ctx);
-			const news = await findAndCountAll(News, {
-				pageIndex,
-				pageSize,
-				filters,
-				sorter,
-				ctx,
-				where: { user_id },
+			const news = await News.create({
+			  image_sm,
+			  image_lg,
+			  title,
+			  slug,
+			  description,
+			  body,
+			  status,
 			});
 
 			return news;
-		} catch (error) {
+		  } catch (error) {
 			throw apiResponseError(error);
-		}
+		  }
+
 	}
 
 	@Action({
-		rest: "POST /",
-	})
-	public async create(ctx: Context<any, any>): Promise<any> {
-		const { image_sm, title, slug, description, body } = ctx.params;
-
-		const News = Models.NewsModel(ctx);
-
-		try {
-			const news = await News.create({ image_sm, title, slug, description, body });
-
-			return news;
-		} catch (error) {
-			if (
-				error.original
-					.toString()
-					.includes("duplicate key value violates unique constraint")
-			) {
-				throw apiResponseValidationError("News title already exists!");
-			}
-
-			throw apiResponseError(error);
-		}
-	}
-
-	@Action({
-		rest: "PUT /publish",
+		rest: "PUT /:id",
 		params: {
-			news_id: "number",
+			id: "string",
+			image_sm: "string",
+			image_lg: "string",
+			title: "string",
+			slug: "string",
+			description: "string",
+			body: "string",
+			status:"string",
 		},
 	})
-	public async publish(ctx: Context<any, any>): Promise<any> {
-		const { news_id } = ctx.params;
+	public async update(ctx: Context<any, any>): Promise<any> {
+		const { id } = ctx.params;
 
 		const News = Models.NewsModel(ctx);
-		const news = await News.findByPk(news_id);
+		const news = await News.findByPk(id);
 
 		if (!news) {
 			throw apiResponseNotFoundError("News not fond");
 		}
 
 		try {
-			news.status = 1;
-			await news.save({ fields: ["status"] });
+			await news.update(ctx.params);
 
 			return news;
 		} catch (error) {

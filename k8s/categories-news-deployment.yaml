@@ -16,14 +16,28 @@ spec:
     spec:
       containers:
         - name: categories-service
-          image: nguyenlehuuduy/microservice
+          image: nguyenlehuuduy/microservices
           env:
+            - name: NODE_ENV
+              value: testing
+            - name: SERVICEDIR
+              value: dist/services
             - name: SERVICES
               value: categories
-          envFrom:
-            - configMapRef:
-                name: microservice-cm
-
+            - name: CACHER
+              value: redis://redis:6379
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: postgres
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: TRANSPORTER
+              value: nats://nats:4222
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -43,10 +57,26 @@ spec:
     spec:
       containers:
         - name: news-service
-          image: nguyenlehuuduy/microservice
+          image: nguyenlehuuduy/microservices
           env:
+            - name: NODE_ENV
+              value: testing
+            - name: SERVICEDIR
+              value: dist/services
             - name: SERVICES
               value: news
-          envFrom:
-            - configMapRef:
-                name: microservice-cm
+            - name: CACHER
+              value: redis://redis:6379
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: postgres
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: TRANSPORTER
+              value: nats://nats:4222
+
